@@ -8,6 +8,7 @@
         <e p="Day1.cs" t="Include" />
         <e p="Day2.cs" t="Include" />
         <e p="Day3.cs" t="Include" />
+        <e p="Day4.cs" t="Include" />
         <e p="obj" t="ExcludeRecursive">
           <e p="Debug" t="Include">
             <e p="net472" t="Include">
