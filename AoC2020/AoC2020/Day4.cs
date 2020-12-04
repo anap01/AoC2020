@@ -123,7 +123,7 @@ namespace AoC2020
                                 return false;
                             break;
                         case "pid":
-                            if (!Regex.IsMatch(passport["pid"], @"\d{9}"))
+                            if (!Regex.IsMatch(passport["pid"], @"^\d{9}$"))
                                 return false;
                             break;
                     }
