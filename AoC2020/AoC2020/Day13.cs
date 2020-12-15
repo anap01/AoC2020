@@ -26,6 +26,38 @@ namespace AoC2020
             TestContext.WriteLine($"{id * time}");
         }
 
+        [TestMethod]
+        public void Part2()
+        {
+            // Iterate over lines
+            var stringReader = new StringReader(DayInput);
+            stringReader.ReadLine(); // Skip first line
+            var line = stringReader.ReadLine();
+            var busIds = line.Split(',').Select((busIdStr, index) => (int.TryParse(busIdStr, out var busId), busId, index)).Where(t => t.Item1).Select(i => (i.busId, i.index)).ToArray();
+            var maxId = busIds.Max(t => t.busId);
+            var maxIdIndex = busIds.First(t => t.busId == maxId).index;
+            // long timestamp = -maxIdIndex;
+            long timestamp = 0;
+            var searching = true;
+            var m = 1L;
+            while (searching)
+            {
+                timestamp = (m*601*37) - 37;
+                m++;
+                searching = false;
+                foreach (var (busId, index) in busIds)
+                {
+                    if ((timestamp + index) % busId != 0)
+                    {
+                        searching = true;
+                        break;
+                    }
+                }
+            }
+
+            TestContext.WriteLine($"{timestamp}");
+        }
+
         private string DayInput
         {
             get
