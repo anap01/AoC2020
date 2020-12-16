@@ -41,6 +41,7 @@ namespace AoC2020
             }
 
             var sum = 0;
+            ISet<int[]> invalidTickets = new HashSet<int[]>();
             foreach (var ticket in tickets)
             {
                 foreach (var field in ticket)
@@ -56,7 +57,10 @@ namespace AoC2020
                     }
 
                     if (!valid)
+                    {
                         sum += field;
+                        invalidTickets.Add(ticket);
+                    }
                 }
             }
 
@@ -88,7 +92,7 @@ namespace AoC2020
 
             var tickets = GetValidTickets(stringReader, rules).ToArray();
 
-            var fields = new Dictionary<string, int>();
+            var fields = new Dictionary<string, ISet<int>>();
             foreach (var rule in rules)
             {
                 for (var field = 0; field < tickets[0].Length; field++)
@@ -107,13 +111,29 @@ namespace AoC2020
                     if (!valid)
                         continue;
 
-                    fields.Add(rule.Key, field);
-                    break;
+                    if (fields.TryGetValue(rule.Key, out var set))
+                    {
+                        set.Add(field);
+                    }
+                    else
+                    {
+                        fields.Add(rule.Key, new HashSet<int> {field});
+                    }
                 }
             }
 
-            var product = 1;
-            foreach (var kvp in fields.Where(k => k.Key.StartsWith("departure")))
+            var knownFields = new HashSet<int>();
+            foreach (var field in fields.OrderBy(f => f.Value.Count))
+            {
+                field.Value.ExceptWith(knownFields);
+                if (field.Value.Count > 1)
+                    throw new Exception("Unspecified field");
+                knownFields.Add(field.Value.First());
+            }
+
+            var finalFields = fields.ToDictionary(k => k.Key, v => v.Value.Single());
+            var product = 1L;
+            foreach (var kvp in finalFields.Where(k => k.Key.StartsWith("departure")))
             {
                 product *= myTicket[kvp.Value];
             }
@@ -127,6 +147,7 @@ namespace AoC2020
             while ((line = stringReader.ReadLine()) != null)
             {
                 var ticket = line.Split(',').Select(int.Parse).ToArray();
+                var validTicket = true;
                 foreach (var field in ticket)
                 {
                     var valid = false;
@@ -139,9 +160,15 @@ namespace AoC2020
                         valid = true;
                     }
 
-                    if (valid)
-                        yield return ticket;
+                    if (!valid)
+                    {
+                        validTicket = false;
+                        break;
+                    }
                 }
+
+                if (validTicket)
+                    yield return ticket;
             }
         }
 
